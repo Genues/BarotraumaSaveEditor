@@ -103,7 +103,7 @@ def check_sub():
 
 	for sub in subs:
 		name = sub.getAttribute("name")
-		if not name in DEFAULT_SUBMARINE and not os.path.isfile(f'"{WORK_FILES_PATH}{name}".sub'):
+		if not name in DEFAULT_SUBMARINE and not os.path.isfile(f"{WORK_FILES_PATH}{name}.sub"):
 			print(f'WARNING: File of submarine "{name}" not found')
 
 # Decompress files from .save file "save_file" to separate files in directory "dir_in"
