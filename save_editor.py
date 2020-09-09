@@ -8,9 +8,7 @@ import logging
 
 OPERATION_STRINGS = ['import', 'export']
 
-TEMPORARY_FILES_PATH = './tmp/'
-IMPORT_DIR_PATH = TEMPORARY_FILES_PATH + 'import/'
-EXPORT_DIR_PATH = TEMPORARY_FILES_PATH + 'export/'
+WORK_FILES_PATH = './tmp/'
 
 SIZEOF_INT = 4
 SIZEOF_CHAR = 2
@@ -45,9 +43,9 @@ def gzip_parse_file(gz):
 # Write string value "strval" to GzipFile object "gz"
 def gzip_write_string(gz, strval):
     # write length of string
-    gz.write(int.to_bytes(len(strval), SIZEOF_INT, byteorder=BYTE_ORDER)) 
+    gz.write(int.to_bytes(len(strval), SIZEOF_INT, byteorder=BYTE_ORDER))
     # write string characters
-    for c in strval: 
+    for c in strval:
         gz.write(int.to_bytes(ord(c), SIZEOF_CHAR, byteorder=BYTE_ORDER))
 
 
@@ -71,7 +69,7 @@ def extract_save(save_file):
 
 # Compress and write all files in directory "dir_in" to one .save file "save_out"
 def compress_save(dir_in, save_out):
-    with gzip.open(save_out, 'wb+') as gz: 
+    with gzip.open(save_out, 'wb+') as gz:
         for file_in in os.listdir(dir_in):
             with open(f"{dir_in}/{file_in}", 'rb') as f:
                 bdata = f.read() # read uncompressed data from file_in
@@ -81,11 +79,11 @@ def compress_save(dir_in, save_out):
 
 
 # Validate a .save file "save_out" against files in directory "dir_in".
-# Ensure that the file names and decompressed file contents of the .save file "save_out" match the 
+# Ensure that the file names and decompressed file contents of the .save file "save_out" match the
 # names and contents of files in directory "dir_in".
 # Returns True if the .save is valid, or False if the .save is invalid.
 def validate_save(dir_in, save_out):
-    validated_files : dict = extract_save(EXPORT_SAVE_PATH) # extract files data from .save file
+    validated_files : dict = extract_save(save_out) # extract files data from .save file
     for file_in in os.listdir(dir_in): # for each file in directory "dir_in"
         if not file_in in validated_files: # file name not found in .save archive
             return False # .save file is invalid: missing file
@@ -99,26 +97,20 @@ def validate_save(dir_in, save_out):
 # Decompress files from .save file "save_file" to separate files in directory "dir_in"
 def import_save(save_file):
     # create IMPORT_DIR_PATH if it does not exist
-    if not os.path.isdir(IMPORT_DIR_PATH):
-        os.makedirs(IMPORT_DIR_PATH) 
     save_data = extract_save(save_file) # extract files data fom the .save file
     # write decompressed files
     for file_name, file_data in save_data.items():
         print(f"{file_name}: {len(file_data) if file_data is not None else file_data} bytes")
-        with open(f"{IMPORT_DIR_PATH}/{file_name}", 'wb+') as f:
+        with open(f"{WORK_FILES_PATH}/{file_name}", 'wb+') as f:
             f.write(file_data) # write decompressed data to imported file
 
 
 # Compress and write all files in directory "dir_in" to one .save file "save_file"
 def export_save(save_file):
-    # create EXPORT_DIR_PATH if it does not exist
-    if not os.path.isdir(EXPORT_DIR_PATH):
-        os.makedirs(EXPORT_DIR_PATH)
-    path_in = IMPORT_DIR_PATH # path of imported files directory
-    path_out = EXPORT_SAVE_PATH # path of temporary .save file to create
-    compress_save(path_in, path_out) # compress to a temporary .save file
-    validate_save(path_in, path_out) # ensure that the created 
-    shutil.copyfile(path_out, save_file) # overwrite "save_file"
+    path_out = ".tmp" # path of temporary .save file to create
+    compress_save(WORK_FILES_PATH, path_out) # compress to a temporary .save file
+    validate_save(WORK_FILES_PATH, path_out) # ensure that the created
+    shutil.move(path_out, save_file) # overwrite "save_file"
 
 
 def main(argv):
@@ -138,14 +130,14 @@ def main(argv):
         print(f'"{save_file}" is not a .save file.')
         return 1
 
-    if not os.path.isdir(TEMPORARY_FILES_PATH):
-        os.mkdir(TEMPORARY_FILES_PATH) # create TEMPORARY_FILES_PATH if it does not exist
+    if not os.path.isdir(WORK_FILES_PATH):
+        os.mkdir(WORK_FILES_PATH) # create TEMPORARY_FILES_PATH if it does not exist
 
     if operation == 'import':
         import_save(save_file) # import from a .save
     elif operation == 'export':
         export_save(save_file) # export to a .save
-    
+
     return 0
 
 

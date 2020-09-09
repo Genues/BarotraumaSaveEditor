@@ -6,7 +6,7 @@ On Windows, Barotrauma .save files are located at
     %LOCALAPPDATA%\Daedalic Entertainment GmbH\Barotrauma
 
 # Usage
-There are two ways to execute the script: non-interactive or interactive. 
+There are two ways to execute the script: non-interactive or interactive.
 
 ## Non-Interactive Mode
 Run the tool from the shell, providing parameters as command arguments.
@@ -17,14 +17,14 @@ Run the tool from the shell, providing parameters as command arguments.
     python save_editor.py -h
 
 ### Decompress a .save file
-Extract gamesession.xml and .sub files from a .save file to ./tmp/import/
+Extract gamesession.xml and .sub files from a .save file to ./tmp/
 
     python save_editor.py import "path/to/save/file.save"
 
-Edit gamesession.xml and add copy .sub files to ./tmp/import/ to modify the save data.
+Edit gamesession.xml and add copy .sub files to ./tmp/ to modify the save data.
 
 ### Recompress files to a .save file
-Compress modified save data from ./tmp/import/ to a Barotrauma .save file.
+Compress modified save data from ./tmp/ to a Barotrauma .save file.
 
     python save_editor.py export "path/to/save/file.save"
 
@@ -37,3 +37,6 @@ In interactive mode, the program will prompt the user to enter each parameter.
     import
     file path:
     path/to/save/file.save
+
+## Known issues
+On Windows not work with space in path.
